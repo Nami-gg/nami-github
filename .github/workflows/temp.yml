@@ -1,0 +1,9 @@
+name: temp
+on: workflow_dispatch
+jobs:
+  temp:
+    environment: temp
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        run: echo $TEMP_VAR
