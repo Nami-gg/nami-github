@@ -5,5 +5,5 @@ jobs:
     environment: temp
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        run: echo $TEMP_VAR
+      - name: echo
+        run: echo ${{ env.TEMP_VAR }}
