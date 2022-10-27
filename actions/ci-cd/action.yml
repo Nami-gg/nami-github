@@ -29,11 +29,11 @@ runs:
     - name: Build
       run: npm run build
       shell: bash
-    - name: AWS Auth
-      uses: aws-actions/configure-aws-credentials
-      with:
-        role-to-assume: ${{ inputs.aws-role-arn }}
-        aws-region: ${{ inputs.aws-region }}
+    # - name: AWS Auth
+    #   uses: aws-actions/configure-aws-credentials
+    #   with:
+    #     role-to-assume: ${{ inputs.aws-role-arn }}
+    #     aws-region: ${{ inputs.aws-region }}
     - name: Deploy
       run: npm run deploy --env=${{ inputs.target-env-name }}
       shell: bash
