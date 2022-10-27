@@ -3,7 +3,9 @@ on: workflow_dispatch
 jobs:
   temp:
     environment: temp
+    env:
+      TEMP_VAR: ${{ secrets.TEMP_VAR }}
     runs-on: ubuntu-latest
     steps:
       - name: echo
-        run: echo ${{ env.TEMP_VAR }}
+        run: echo $TEMP_VAR
