@@ -1,0 +1,39 @@
+name: CI/CD
+description: Nami CI/CD execute action (cache node_modules -> install -> test -> build -> auth -> deploy)
+inputs:
+  target-env-name:
+    description: Name of the target AWS environment
+    required: true
+  aws-role-arn:
+    description: ARN of the AWS role to be used by this action
+    required: true
+  aws-region:
+    description: AWS region to be used by this action
+    required: true
+runs:
+  using: composite
+  steps:
+    - name: Cache (node_modules)
+      id: cache
+      uses: actions/cache@v3
+      with:
+        path: node_modules
+        key: node-modules-${{ hashFiles('./package-lock.json') }}
+    - name: Install
+      if: steps.cache.outputs.cache-hit != 'true'
+      run: npm ci
+      shell: bash
+    - name: Test
+      run: npm run test
+      shell: bash
+    - name: Build
+      run: npm run build
+      shell: bash
+    - name: AWS Auth
+      uses: aws-actions/configure-aws-credentials
+      with:
+        role-to-assume: ${{ inputs.aws-role-arn }}
+        aws-region: ${{ inputs.aws-region }}
+    - name: Deploy
+      run: npm run deploy --env=${{ inputs.target-env-name }}
+      shell: bash
