@@ -1,5 +1,5 @@
-name: CI/CD
-description: Nami CI/CD execute action (cache node_modules -> install -> test -> build -> auth -> deploy)
+name: CI
+description: Nami CI execute action (cache node_modules -> install -> test -> build -> auth -> deploy)
 inputs:
   target-env-name:
     description: Name of the target AWS environment

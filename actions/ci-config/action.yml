@@ -1,0 +1,25 @@
+name: CI Config
+description: Nami CI config action
+inputs:
+  ref-name:
+    description: Name of the branch that triggered the CI workflow
+    required: true  
+outputs:
+  environment:
+    description: GitHub environment to be used
+    value: ${{ steps.eval.outputs.environment }}
+  target-name:
+    description: Name of the target AWS environment
+    value: ${{ steps.eval.outputs.target-name }}
+runs:
+  using: composite
+  steps:
+    - id: eval
+      shell: bash
+      run: |
+        case ${{ inputs.ref-name }} in \
+          master  ) echo "environment=prod"       >> $GITHUB_OUTPUT && echo "target-name=prod"      >> $GITHUB_OUTPUT;; \
+          demo    ) echo "environment=dev"        >> $GITHUB_OUTPUT && echo "target-name=demo"      >> $GITHUB_OUTPUT;; \
+          release ) echo "environment=dev"        >> $GITHUB_OUTPUT && echo "target-name=release"   >> $GITHUB_OUTPUT;; \
+          *       ) echo "environment=undefined"  >> $GITHUB_OUTPUT && echo "target-name=undefined" >> $GITHUB_OUTPUT;; \
+        esac
