@@ -21,6 +21,12 @@ runs:
       with:
         path: node_modules
         key: node-modules-${{ hashFiles('./package-lock.json') }}
+    - name: Setup
+      uses: actions/setup-node@v3
+      with:
+        node-version: "16.x"
+        registry-url: "https://npm.pkg.github.com"
+        scope: "@Nami-gg"
     - name: Install
       if: steps.cache.outputs.cache-hit != 'true'
       run: npm ci
