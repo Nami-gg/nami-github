@@ -1,0 +1,66 @@
+name: CI with docker build and AWS ECR push
+description: Nami CI execute action with docker build and AWS ECR push (cache node_modules -> install -> test -> build -> auth -> docker -> deploy)
+inputs:
+  target-env-name:
+    description: Name of the target AWS environment
+    required: true
+  aws-role-arn:
+    description: ARN of the AWS role to be used by this action
+    required: true
+  aws-region:
+    description: AWS region to be used by this action
+    required: true
+  ecr-repo:
+    description: AWS ECR repo name
+    required: true
+  ecr-image-tag:
+    description: Docker image tag
+    required: true
+runs:
+  using: composite
+  steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+    - name: Cache (node_modules)
+      id: cache
+      uses: actions/cache@v3
+      with:
+        path: node_modules
+        key: node-modules-${{ hashFiles('./package-lock.json') }}
+    - name: Setup
+      uses: actions/setup-node@v3
+      with:
+        node-version: "16.x"
+        registry-url: "https://npm.pkg.github.com"
+        scope: "@Nami-gg"
+    - name: Install
+      if: steps.cache.outputs.cache-hit != 'true'
+      run: npm ci
+      shell: bash
+    - name: Test
+      run: npm test
+      shell: bash
+    - name: Build
+      run: npm run build
+      shell: bash
+    - name: AWS Auth
+      uses: aws-actions/configure-aws-credentials@v1.7.0
+      with:
+        role-to-assume: ${{ inputs.aws-role-arn }}
+        aws-region: ${{ inputs.aws-region }}
+    - name: AWS ECR Auth
+      id: ecr-auth
+      uses: aws-actions/amazon-ecr-login@v1
+    - name: Build, tag, and push image to Amazon ECR
+      env:
+        ECR_REGISTRY: ${{ steps.ecr-auth.outputs.registry }}
+        ECR_REPOSITORY: ${{ inputs.ecr-repo }}
+        IMAGE_TAG: ${{ inputs.ecr-image-tag }}
+      run: |
+        cd dist
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+      shell: bash
+    - name: Deploy
+      run: npm run deploy --env=${{ inputs.target-env-name }}
+      shell: bash
