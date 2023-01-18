@@ -44,7 +44,7 @@ runs:
       run: npm run build
       shell: bash
     - name: AWS Auth
-      uses: aws-actions/configure-aws-credentials@v1.7.0
+      uses: aws-actions/configure-aws-credentials@v1-node16
       with:
         role-to-assume: ${{ inputs.aws-role-arn }}
         aws-region: ${{ inputs.aws-region }}
