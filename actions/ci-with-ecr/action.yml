@@ -58,8 +58,8 @@ runs:
         IMAGE_TAG: ${{ inputs.ecr-image-tag }}
       run: |
         cd dist
-        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+        docker build --tag "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" .
+        docker push "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
       shell: bash
     - name: Deploy
       run: npm run deploy --env=${{ inputs.target-env-name }}
